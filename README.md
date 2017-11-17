@@ -1,0 +1,3 @@
+# PTLiveKit
+iOS硬编码，rtmp推流项目
+采集端视频使用GPUImage,音频使用AVAudioSession。编码使用的是iOS硬编码VideoToolBox和AudioToolBox。推流端使用librtmp库。
