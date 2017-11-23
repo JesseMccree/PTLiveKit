@@ -59,9 +59,9 @@
 - (void)start {
     [self.videoCamera removeAllTargets];
     [self.output removeAllTargets];
-    
+
     self.output = [[GPUImageFilter alloc] init];
-    
+
     [self.videoCamera addTarget:self.output];
     [self.output addTarget:self.gpuImageView];
     

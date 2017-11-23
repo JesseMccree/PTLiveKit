@@ -8,15 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(NSUInteger, FrameType) {
-    Audio,
-    Video,
-};
-
 @interface AudioVideoFrame : NSObject
 
 @property (nonatomic, strong) NSData *data;
-
-@property (nonatomic, assign) FrameType type;
 
 @end

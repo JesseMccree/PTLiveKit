@@ -59,20 +59,6 @@
     VTCompressionSessionPrepareToEncodeFrames(compressionSession);
 }
 
-//- (void)encoderToH264:(CMSampleBufferRef)sampleBuffer {
-//    CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
-//    CMTime pts = CMTimeMake(frameCount++, _videoConfig.fps);
-//    CMTime duration = CMTimeMake(1, _videoConfig.fps);
-//    VTEncodeInfoFlags flags;
-//    NSDictionary *properties = nil;
-//    if (frameCount % _videoConfig.fps*2 == 0) {
-//        properties = @{(__bridge NSString *)kVTEncodeFrameOptionKey_ForceKeyFrame: @YES};
-//    }
-//    OSStatus status = VTCompressionSessionEncodeFrame(compressionSession, imageBuffer, pts, duration, (__bridge CFDictionaryRef)properties, NULL, &flags);
-//    if (status != noErr) {
-//        NSLog(@"VTCompressionSessionEncodeFrame failed:%d",(int)status);
-//    }
-//}
 - (void)encoderToH264:(CVImageBufferRef)sampleBuffer {
     CMTime pts = CMTimeMake(frameCount++, _videoConfig.fps);
     CMTime duration = CMTimeMake(1, _videoConfig.fps);
@@ -137,8 +123,7 @@ static void VideoToolCompressionOutputCallback(void *outputCallbackRefCon,
             vf.sps = manager.sps;
             vf.pps = manager.pps;
             vf.isKeyFrame = keyframe;
-            vf.type = Video;
-            
+
             if ([manager.delegate conformsToProtocol:@protocol(VideoManagerDelegate)] &&
                 [manager.delegate respondsToSelector:@selector(videoManager:videoFrame:)]) {
                 [manager.delegate videoManager:manager videoFrame:vf];

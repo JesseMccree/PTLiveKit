@@ -44,58 +44,83 @@
     if (self) {
         _videoConfig = videoConfig;
         _audioConfig = audioConfig;
+        _isSendAVCC = NO;
+        _isSendSpec = NO;
         rtmpQueue = dispatch_queue_create("com.live.rtmp", DISPATCH_QUEUE_SERIAL);
         [self initManager];
     }
     return self;
 }
 
+- (VideoManager *)videoManager {
+    if (!_videoManager) {
+        _videoManager = [[VideoManager alloc]initWithVideoConfig:_videoConfig];
+        _videoManager.delegate = self;
+    }
+    return _videoManager;
+}
+
+- (AudioManager *)audioManager {
+    if (!_audioManager) {
+        _audioManager = [[AudioManager alloc]initWithAudioConfig:_audioConfig];
+        _audioManager.delegate = self;
+    }
+    return _audioManager;
+}
+
+- (RtmpManager *)rtmpManager {
+    if (!_rtmpManager) {
+        _rtmpManager = [[RtmpManager alloc]init];
+        [_rtmpManager rtmpConnect:@"rtmp://10.201.8.130:1935/rtmplive/demo"];
+    }
+    return _rtmpManager;
+}
+
+- (QueueManager *)audioQueue {
+    if (!_audioQueue) {
+        _audioQueue = [[QueueManager alloc]init];
+    }
+    return _audioQueue;
+}
+
+- (QueueManager *)videoQueue {
+    if (!_videoQueue) {
+        _videoQueue = [[QueueManager alloc]init];
+    }
+    return _videoQueue;
+}
+
 - (void)initManager {
-    _isSendAVCC = NO;
-    _isSendSpec = NO;
-    
     _videoCapture = [[VideoCapture alloc]init];
     _videoCapture.delegate = self;
     _preView = _videoCapture.preView;
-    
+
     _audioCapture = [[AudioCapture alloc]init];
     _audioCapture.delegate = self;
-    
-    _videoManager = [[VideoManager alloc]initWithVideoConfig:_videoConfig];
-    _videoManager.delegate = self;
-    
-    _audioManager = [[AudioManager alloc]initWithAudioConfig:_audioConfig];
-    _audioManager.delegate = self;
-    
-    _rtmpManager = [[RtmpManager alloc]init];
-    [_rtmpManager rtmpConnect:@"rtmp://10.201.8.130:1935/rtmplive/demo"];
-    
-    _audioQueue = [[QueueManager alloc]init];
-    _videoQueue = [[QueueManager alloc]init];
 }
 
 #pragma mark - VideoCaptureDelegate AudioCaptureDelegate
 - (void)videoCapture:(VideoCapture *)videoCapture sampleBuffer:(CVImageBufferRef)sampleBuffer {
-    [_videoManager encoderToH264:sampleBuffer];
+    [self.videoManager encoderToH264:sampleBuffer];
 }
 
 - (void)audioCapture:(AudioCapture *)videoCapture buffers:(AudioBufferList)buffers {
-    [_audioManager encoderToAAC:buffers];
+    [self.audioManager encoderToAAC:buffers];
 }
 
 #pragma mark - VideoManagerDelegate AudioManagerDelegate
 - (void)videoManager:(VideoManager *)videoManager videoFrame:(VideoFrame *)videoFrame {
-    [_videoQueue addObject:videoFrame];
+    [self.videoQueue addObject:videoFrame];
     [self sendVideo];
 }
 
 - (void)audioManager:(AudioManager *)audioManager audioFrame:(AudioFrame *)audioFrame {
-    [_audioQueue addObject:audioFrame];
+    [self.audioQueue addObject:audioFrame];
     [self sendAudio];
 }
 
 - (void)sendVideo {
-    AudioVideoFrame *avf = [_videoQueue popObject];
+    AudioVideoFrame *avf = [self.videoQueue popObject];
     if (avf) {
         [self sendVideo:(VideoFrame *)avf];
     }
@@ -115,7 +140,7 @@
 }
 
 - (void)sendAudio {
-    AudioVideoFrame *avf = [_audioQueue popObject];
+    AudioVideoFrame *avf = [self.audioQueue popObject];
     if (avf) {
         [self sendAudio:(AudioFrame *)avf];
     }
@@ -136,14 +161,14 @@
 
 - (void)start {
     
-    [_videoCapture start];
-    [_audioCapture start];
+    [self.videoCapture start];
+    [self.audioCapture start];
 }
 
 - (void)stop {
     
-    [_videoCapture stop];
-    [_audioCapture stop];
+    [self.videoCapture stop];
+    [self.audioCapture stop];
 }
 
 @end

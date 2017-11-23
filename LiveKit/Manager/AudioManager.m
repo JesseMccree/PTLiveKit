@@ -99,9 +99,9 @@
         
         AudioFrame *af = [AudioFrame new];
         af.data = [NSData dataWithBytes:outBuffers.mBuffers[0].mData length:outBuffers.mBuffers[0].mDataByteSize];
-        af.type = Audio;
         af.sequenceHeader = [NSData dataWithBytes:aac length:2];
         [_delegate audioManager:self audioFrame:af];
+        free(outBuffers.mBuffers[0].mData);
     }
 }
 
