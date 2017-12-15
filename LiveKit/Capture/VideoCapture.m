@@ -57,6 +57,8 @@
 }
 
 - (void)start {
+    [UIApplication sharedApplication].idleTimerDisabled = YES;
+    
     [self.videoCamera removeAllTargets];
     [self.output removeAllTargets];
 
@@ -73,6 +75,7 @@
 }
 
 - (void)stop {
+    [UIApplication sharedApplication].idleTimerDisabled = NO;
     [_videoCamera stopCameraCapture];
 }
 

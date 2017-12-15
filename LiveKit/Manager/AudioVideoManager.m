@@ -34,6 +34,8 @@
 
 @property (nonatomic, strong) QueueManager *audioQueue;
 
+@property (nonatomic, strong) QueueManager *queue;
+
 @end
 
 @implementation AudioVideoManager
@@ -71,7 +73,7 @@
 - (RtmpManager *)rtmpManager {
     if (!_rtmpManager) {
         _rtmpManager = [[RtmpManager alloc]init];
-        [_rtmpManager rtmpConnect:@"rtmp://10.201.8.130:1935/rtmplive/demo"];
+        [_rtmpManager rtmpConnect:@"rtmp://10.201.8.137:1935/rtmplive/demo"];
     }
     return _rtmpManager;
 }
@@ -88,6 +90,13 @@
         _videoQueue = [[QueueManager alloc]init];
     }
     return _videoQueue;
+}
+
+- (QueueManager *)queue {
+    if (!_queue) {
+        _queue = [[QueueManager alloc]init];
+    }
+    return _queue;
 }
 
 - (void)initManager {
@@ -110,19 +119,23 @@
 
 #pragma mark - VideoManagerDelegate AudioManagerDelegate
 - (void)videoManager:(VideoManager *)videoManager videoFrame:(VideoFrame *)videoFrame {
-    [self.videoQueue addObject:videoFrame];
-    [self sendVideo];
+    [self.queue addObject:videoFrame];
+    [self sendFrame];
 }
 
 - (void)audioManager:(AudioManager *)audioManager audioFrame:(AudioFrame *)audioFrame {
-    [self.audioQueue addObject:audioFrame];
-    [self sendAudio];
+    [self.queue addObject:audioFrame];
+    [self sendFrame];
 }
 
-- (void)sendVideo {
-    AudioVideoFrame *avf = [self.videoQueue popObject];
+- (void)sendFrame {
+    AudioVideoFrame *avf = [self.queue popObject];
     if (avf) {
-        [self sendVideo:(VideoFrame *)avf];
+        if ([avf isKindOfClass:[VideoFrame class]]) {
+            [self sendVideo:(VideoFrame *)avf];
+        }else if ([avf isKindOfClass:[AudioFrame class]]) {
+            [self sendAudio:(AudioFrame *)avf];
+        }
     }
 }
 
@@ -137,13 +150,6 @@
             [weakself.rtmpManager sendAVCFrame:videoframe.data isKeyFrame:videoframe.isKeyFrame];
         }
     });
-}
-
-- (void)sendAudio {
-    AudioVideoFrame *avf = [self.audioQueue popObject];
-    if (avf) {
-        [self sendAudio:(AudioFrame *)avf];
-    }
 }
 
 - (void)sendAudio:(AudioFrame *)audioframe {

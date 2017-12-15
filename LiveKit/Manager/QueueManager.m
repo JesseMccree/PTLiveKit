@@ -9,7 +9,7 @@
 #import "QueueManager.h"
 #import "VideoFrame.h"
 
-#define MAXCount 6
+#define MAXCount 600
 
 @interface QueueManager () {
     dispatch_semaphore_t _lock;
@@ -39,16 +39,53 @@
     if (_queue.count < MAXCount) {
         [_queue addObject:obj];
     }else {
-        [_queue removeObjectAtIndex:0];
+        [self removeObject];
         [_queue addObject:obj];
     }
     dispatch_semaphore_signal(_lock);
 }
 
+- (void)removeObject {
+    NSMutableArray *array = [NSMutableArray array];
+    
+    for (int i = 0; i < _queue.count; i++) {
+        AudioVideoFrame *frame = [_queue objectAtIndex:i];
+        if ([frame isKindOfClass:[VideoFrame class]]) {
+            VideoFrame *vf = (VideoFrame *)frame;
+            if (vf.isKeyFrame && array.count > 0) {
+                break;
+            }else if (!vf.isKeyFrame) {
+                [array addObject:vf];
+            }
+        }
+    }
+    
+    if (array.count > 0) {
+        [_queue removeObjectsInArray:array];
+        return;
+    }else {
+        for (int i = 0; i < _queue.count; i++) {
+            AudioVideoFrame *frame = [_queue objectAtIndex:i];
+            if ([frame isKindOfClass:[VideoFrame class]]) {
+                VideoFrame *vf = (VideoFrame *)frame;
+                if (vf.isKeyFrame && array.count > 0) {
+                    break;
+                }else if (vf.isKeyFrame) {
+                    [array addObject:vf];
+                }
+            }
+        }
+    }
+    
+    if (array.count > 0) {
+        [_queue removeObjectsInArray:array];
+    }
+}
+
 - (AudioVideoFrame *)popObject {
     dispatch_semaphore_wait(_lock, DISPATCH_TIME_FOREVER);
     AudioVideoFrame *obj = nil;
-    if (_queue.count > 5) {
+    if (_queue.count > 0) {
         obj = _queue.firstObject;
         [_queue removeObjectAtIndex:0];
     }
