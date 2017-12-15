@@ -30,10 +30,6 @@
 
 @property (nonatomic, strong) RtmpManager *rtmpManager;
 
-@property (nonatomic, strong) QueueManager *videoQueue;
-
-@property (nonatomic, strong) QueueManager *audioQueue;
-
 @property (nonatomic, strong) QueueManager *queue;
 
 @end
@@ -76,20 +72,6 @@
         [_rtmpManager rtmpConnect:@"rtmp://10.201.8.137:1935/rtmplive/demo"];
     }
     return _rtmpManager;
-}
-
-- (QueueManager *)audioQueue {
-    if (!_audioQueue) {
-        _audioQueue = [[QueueManager alloc]init];
-    }
-    return _audioQueue;
-}
-
-- (QueueManager *)videoQueue {
-    if (!_videoQueue) {
-        _videoQueue = [[QueueManager alloc]init];
-    }
-    return _videoQueue;
 }
 
 - (QueueManager *)queue {
