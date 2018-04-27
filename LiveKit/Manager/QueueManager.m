@@ -79,6 +79,8 @@
     
     if (array.count > 0) {
         [_queue removeObjectsInArray:array];
+    }else {
+        [_queue removeAllObjects];
     }
 }
 

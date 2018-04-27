@@ -38,8 +38,8 @@
     recordVideoButton = [UIButton buttonWithType:UIButtonTypeCustom];
     recordVideoButton.frame = CGRectMake(45, self.view.frame.size.height - 60 - 15, 60, 60);
     recordVideoButton.center = CGPointMake(self.view.frame.size.width / 2, recordVideoButton.frame.origin.y + recordVideoButton.frame.size.height / 2);
-    [recordVideoButton setTitleColor:[UIColor greenColor] forState:UIControlStateNormal];
-    [recordVideoButton setTitle:@"录制" forState:UIControlStateNormal];
+    [recordVideoButton setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
+    [recordVideoButton setTitle:@"直播" forState:UIControlStateNormal];
     recordVideoButton.selected = NO;
     [recordVideoButton setTitleColor:[UIColor redColor] forState:UIControlStateSelected];
     [recordVideoButton setTitle:@"停止" forState:UIControlStateSelected];
@@ -52,13 +52,11 @@
     button.selected = !button.selected;
     
     if (button.selected) {
+        
         [_manager start];
-        NSLog(@"recordVideo....");
-
-    } else {
+    }else {
+        
         [_manager stop];
-        NSLog(@"stopRecord!!!");
-
     }
 }
 
